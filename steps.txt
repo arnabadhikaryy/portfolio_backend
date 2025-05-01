@@ -1,0 +1,7 @@
+1) ceating server using express
+
+2) create mongodb cluaster
+
+3) connect mongodb database using the connecting string with our server
+
+4) define all routes and setup
