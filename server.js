@@ -5,10 +5,12 @@ import basic_details from './Routes/basic_details_route.js'
 import education_route from './Routes/education_route.js'
 import Projects_route from './Routes/projects_route.js'
 import service_route from './Routes/service_route.js'
+import cors from 'cors'
 
 
 const app = express()
 
+app.use(cors({origin:'http://localhost:5173'}))
 //help to pass request.bady
 app.use(express.json())
 
