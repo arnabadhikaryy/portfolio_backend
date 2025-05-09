@@ -10,7 +10,7 @@ async function addSkillToBasicDetails(req, res) {
     const _id = process.env.BASIC_DETAILS_DATABASE_ID;
 
     if (!_id || !skill_name || confidance == null || !icon_url) {
-        return res.status(400).send({
+        return res.send({
             status: false,
             message: "skill_name, confidance, iconMissing required fields (_url)",
         });

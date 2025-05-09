@@ -13,7 +13,7 @@ async function educationDetailsUpload(req, res) {
     }
 
     // Default certificate image
-    let certificateUrl = 'https://www.vhv.rs/dpng/d/614-6141651_transparent-background-education-logo-hd-png-download.png';
+    let certificateUrl = 'https://images.vexels.com/media/users/3/216792/raw/e0f8ac75aa6d312770640ecd936b793b-kids-certificate-template-design.jpg';
 
     // Upload custom image if provided
     if (req.file) {

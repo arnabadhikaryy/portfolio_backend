@@ -6,13 +6,15 @@ import education_route from './Routes/education_route.js'
 import Projects_route from './Routes/projects_route.js'
 import service_route from './Routes/service_route.js'
 import cors from 'cors'
+import cookieParser from 'cookie-parser'
 
 
 const app = express()
 
-app.use(cors({origin:'http://localhost:5173'}))
+app.use(cors({origin:'http://localhost:5173', credentials: true}))
 //help to pass request.bady
-app.use(express.json())
+app.use(express.json());
+app.use(cookieParser());
 
 
 const port = process.env.PORT || 3000
