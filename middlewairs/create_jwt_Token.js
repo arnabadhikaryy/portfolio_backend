@@ -25,7 +25,7 @@ async function create_jwt_token_login(req, res) {
                     email:response.email
                  }, // payload
                 process.env.JWT_SECRITE, // secret key
-                { expiresIn: 60 * 10 } // 10 munite
+                { expiresIn: 60 * 60 * 24} // 1 day
             );
             response = 'undifined';
 

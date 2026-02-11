@@ -7,10 +7,17 @@ async function deleteSkillFromBasicDetails(req, res) {
 
     const _id = process.env.BASIC_DETAILS_DATABASE_ID;
 
-    if (!_id || !skill_name) {
+    if (!_id ) {
         return res.status(400).send({
             status: false,
-            message: "Both '_id' and 'skill_name' are required",
+            message: "_id is required",
+        });
+    }
+
+    if (!skill_name) {
+        return res.status(400).send({
+            status: false,
+            message: "skill_name is required",
         });
     }
 

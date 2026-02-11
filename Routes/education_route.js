@@ -5,6 +5,7 @@ import multer from 'multer'
 import getAllEducationDetails from '../controlers/education_related/get_all_education.js';
 import are_you_authorized from '../middlewairs/are_you_autharize.js';
 const upload = multer({ dest: 'uploads/' })
+import editEducationDetails from '../controlers/education_related/edit_education_details.js';
 
 
 
@@ -13,7 +14,9 @@ const education_route = express.Router();
 
 
 
-education_route.post('/upload',upload.single('coures_certificate_image'), are_you_authorized ,education_details_upload)
+education_route.post('/upload',upload.single('coures_certificate_image'), are_you_authorized ,education_details_upload);
+education_route.put('/edit',upload.single('certificate'), are_you_authorized ,editEducationDetails);
+//education_route.delete('/delete',  are_you_authorized  ,deleteEducationDetails);
 education_route.delete('/delete',  are_you_authorized  ,deleteEducationDetails)
 
 education_route.get('/get',getAllEducationDetails)

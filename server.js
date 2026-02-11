@@ -11,7 +11,11 @@ import cookieParser from 'cookie-parser'
 
 const app = express()
 
-app.use(cors())
+app.use(cors({
+  origin: process.env.frontend_url,   // your frontend URL
+  credentials: true
+}));
+
 //help to pass request.bady
 app.use(express.json());
 app.use(cookieParser());
@@ -35,7 +39,7 @@ app.listen(port, async () => {
 
         if (db) {
             console.log('Database connected');
-            console.log(`Example app listening on port ${port}`);
+            console.log(`Example app listening on  http://localhost:${port}`);
         } else {
             console.error('Database connection failed');
         }
