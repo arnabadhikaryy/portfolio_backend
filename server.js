@@ -39,7 +39,7 @@ app.listen(port, async () => {
 
         if (db) {
             console.log('Database connected');
-            console.log(`Example app listening on  http://localhost:${port}`);
+            console.log(`Example app listening on  https://localhost:${port}`);
         } else {
             console.error('Database connection failed');
         }

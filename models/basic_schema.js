@@ -45,6 +45,10 @@ const basic_details_schema = new mongoose.Schema({
         type: String,
         required: true
     },
+    resume_url:{
+        type: String,
+        default: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf"
+    },
     skills:[
         { 
         skill_name:String, 
