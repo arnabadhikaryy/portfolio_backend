@@ -9,7 +9,7 @@ async function create_jwt_token_login(req, res) {
             return res.status(400).send({ status: false, message: 'Request body is missing' });
         }
 
-        const { _id } = req.body;
+        const { _id , password } = req.body;
 
         // 2. Validation: Check if _id exists AND is a valid MongoDB ObjectId
         // This prevents the server from crashing on invalid Hex strings
@@ -20,7 +20,7 @@ async function create_jwt_token_login(req, res) {
         // 3. Database Query
         const response = await basicmodel.findOne({ _id });
 
-        if (response) {
+        if (response.my_password == password) {
             // 4. Check for typos in your ENV and Database fields
             // Ensure process.env.JWT_SECRET matches your .env file exactly (you had "SECRITE")
             const token = jwt.sign(

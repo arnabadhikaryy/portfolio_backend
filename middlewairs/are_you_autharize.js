@@ -1,27 +1,31 @@
 import jwt from 'jsonwebtoken';
 
 function are_you_authorized(req, res, next) {
-    const token = req.body.token;
+   // console.log('req.body:', req.body.token);
+
+    // 1️⃣ Try to get token from multiple places
+    let token =  req.body.token
 
     if (!token) {
-        return res.send({ status: false, message: "Sorry ! you have no Access Token!!!! from server" });
+        return res.status(401).send({
+            status: false,
+            message: "No access token provided."
+        });
     }
 
     try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRITE); 
-        // return res.json({
-        //     login: true,
-        //     data: decoded
-        // });
-        if(decoded.name === 'Arnab Adhikary'){
-            console.log('authorized person')
-            next();
-        }
-        else{
-            res.send({status:false,message:"you are different person or somthing wrong"})
-        }
+        // 2️⃣ Verify token
+        const decoded = jwt.verify(token, process.env.JWT_SECRITE);
+
+        // 3️⃣ Attach user info to request
+        req.user = decoded;
+
+        next();
     } catch (err) {
-        return res.send({status:false, login: false, message: "Invalid token", error: err.message });
+        return res.status(401).send({
+            status: false,
+            message: "Invalid or expired token"
+        });
     }
 }
 

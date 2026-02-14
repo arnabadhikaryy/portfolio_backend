@@ -10,6 +10,7 @@ const basic_details = express.Router();
 const upload = multer({ dest: 'uploads/' });
 import multer from 'multer';
 import uploadResume from '../middlewairs/resumeController.js';
+import * as Portfolio from '../controlers/basic_related/portfolioController.js'
 //basic_details.post('/aut', are_you_authorized)
 basic_details.post('/login', create_jwt_token_login);
 basic_details.post('/upload', are_you_authorized, uploadBasicDetails);
@@ -33,6 +34,29 @@ basic_details.get('/get', getAllBasicDetails)
 
 
 
+
+
+
+
+//new route for portfolio controller
+basic_details.put('/update-basic',
+    upload.fields([{ name: 'profile_pic' }, { name: 'professional_pic' }]),
+    are_you_authorized,
+    Portfolio.updateBasicDetails
+);
+
+
+// --- Education Routes ---
+basic_details.post('/education/add', upload.single('certificate'), Portfolio.addEducation);
+basic_details.put('/education/edit', upload.single('certificate'), Portfolio.editEducation); // Send 'eduId' in body
+basic_details.delete('/education/delete', Portfolio.deleteEducation); // Send 'eduId' in body
+
+// --- Project Routes ---
+basic_details.post('/project/add', upload.single('snapshot'), Portfolio.addProject);
+basic_details.put('/project/edit', upload.single('snapshot'), Portfolio.editProject); // Send 'projectId' in body
+basic_details.post('/project/delete', Portfolio.deleteProject); // Send 'projectId' in body
+// --- Get All Data Route ---
+basic_details.get('/get-portfolio', Portfolio.getPortfolioData);
 
 
 
