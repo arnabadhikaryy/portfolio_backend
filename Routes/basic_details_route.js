@@ -35,9 +35,6 @@ basic_details.get('/get', getAllBasicDetails)
 
 
 
-
-
-
 //new route for portfolio controller
 basic_details.put('/update-basic',
     upload.fields([{ name: 'profile_pic' }, { name: 'professional_pic' }]),
@@ -47,14 +44,14 @@ basic_details.put('/update-basic',
 
 
 // --- Education Routes ---
-basic_details.post('/education/add', upload.single('certificate'), Portfolio.addEducation);
-basic_details.put('/education/edit', upload.single('certificate'), Portfolio.editEducation); // Send 'eduId' in body
-basic_details.delete('/education/delete', Portfolio.deleteEducation); // Send 'eduId' in body
+basic_details.post('/education/add', upload.single('certificate'), are_you_authorized, Portfolio.addEducation);
+basic_details.put('/education/edit', upload.single('certificate'), are_you_authorized, Portfolio.editEducation); // Send 'eduId' in body
+basic_details.delete('/education/delete', are_you_authorized, Portfolio.deleteEducation); // Send 'eduId' in body
 
 // --- Project Routes ---
-basic_details.post('/project/add', upload.single('snapshot'), Portfolio.addProject);
-basic_details.put('/project/edit', upload.single('snapshot'), Portfolio.editProject); // Send 'projectId' in body
-basic_details.post('/project/delete', Portfolio.deleteProject); // Send 'projectId' in body
+basic_details.post('/project/add', upload.single('snapshot'), are_you_authorized, Portfolio.addProject);
+basic_details.put('/project/edit', upload.single('snapshot'), are_you_authorized, Portfolio.editProject); // Send 'projectId' in body
+basic_details.post('/project/delete', are_you_authorized, Portfolio.deleteProject); // Send 'projectId' in body
 // --- Get All Data Route ---
 basic_details.get('/get-portfolio', Portfolio.getPortfolioData);
 
