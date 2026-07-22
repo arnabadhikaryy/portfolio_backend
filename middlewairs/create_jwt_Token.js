@@ -25,6 +25,7 @@ async function create_jwt_token_login(req, res) {
             // Ensure process.env.JWT_SECRET matches your .env file exactly (you had "SECRITE")
             const token = jwt.sign(
                 { 
+                    user_id: response.user_id,
                     name: response.my_name,
                     DOB: response.date_of_barth, // Fixed typo: 'barth' -> 'birth'
                     address: response.address,

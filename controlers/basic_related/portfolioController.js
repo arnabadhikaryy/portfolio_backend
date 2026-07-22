@@ -47,6 +47,20 @@ export const updateBasicDetails = async (req, res) => {
 
 // --- ADD Education (Push to Array) ---
 export const addEducation = async (req, res) => {
+    console.log("req.user.user_id: ", req.user.user_id);
+    console.log("req.body.user_id: ", req.body.user_id);
+    if(!req.user.user_id || !req.body.user_id) {
+        return res.status(401).json({
+            status: false,
+            message: "user_id not found"
+        });
+    }
+    if(req.user.user_id !== req.body.user_id) {
+        return res.status(401).json({
+            status: false,
+            message: "you can't add education to other user's account. this is not allowed"
+        });
+    }
     try {
         const { title, discriotion, start_year, end_year } = req.body;
         console.log('req.body', req.body);
@@ -66,7 +80,8 @@ export const addEducation = async (req, res) => {
         };
 
         // $push adds the new object to the 'education' array
-        const updatedUser = await basicmodel.findByIdAndUpdate(FIXED_ID,
+        const updatedUser = await basicmodel.findOneAndUpdate(
+            { user_id: req.user.user_id },
             { $push: { education: newEducation } },
             { new: true }
         );
@@ -83,6 +98,18 @@ export const editEducation = async (req, res) => {
     try {
         const { eduId, title, discriotion, start_year, end_year } = req.body; // eduId is required!
         
+        if(!req.user.user_id || !req.body.user_id) {
+            return res.status(401).json({
+                status: false,
+                message: "user_id not found"
+            });
+        }
+        if(req.user.user_id !== req.body.user_id) {
+            return res.status(401).json({
+                status: false,
+                message: "you can't edit education to other user's account. this is not allowed"
+            });
+        }
         // Construct update object dynamically
         const updateFields = {};
         if (title) updateFields["education.$.title"] = title;
@@ -98,7 +125,7 @@ export const editEducation = async (req, res) => {
 
         // Use the positional operator ($) to update the item that matches the ID
         const updatedUser = await basicmodel.findOneAndUpdate(
-            { _id: FIXED_ID, "education._id": eduId },
+            { user_id: req.user.user_id, "education._id": eduId },
             { $set: updateFields },
             { new: true }
         );
@@ -117,19 +144,31 @@ export const deleteEducation = async (req, res) => {
     try {
         const { eduId } = req.body; // Expecting { "eduId": "..." }
 
+        if(!req.user.user_id || !req.body.user_id) {
+            return res.status(401).json({
+                status: false,
+                message: "user_id not found"
+            });
+        }
+        if(req.user.user_id !== req.body.user_id) {
+            return res.status(401).json({
+                status: false,
+                message: "you can't delete education to other user's account. this is not allowed"
+            });
+        }
         // $pull removes items from array that match the condition
-        const updatedUser = await basicmodel.findByIdAndUpdate(FIXED_ID,
+        const updatedUser = await basicmodel.findOneAndUpdate(
+            { user_id: req.user.user_id },
             { $pull: { education: { _id: eduId } } },
             { new: true }
-        );
+            );
 
-        res.status(200).json({ status: true, message: "Education deleted", data: updatedUser.education });
+            res.status(200).json({ status: true, message: "Education deleted", data: updatedUser.education });
 
-    } catch (error) {
-        res.status(500).json({ status: false, message: error.message });
-    }
-};
-
+        } catch (error) {
+            res.status(500).json({ status: false, message: error.message });
+        }
+    };
 
 // ==========================================
 // 3. PROJECT MANAGEMENT (Array Operations)
@@ -137,9 +176,27 @@ export const deleteEducation = async (req, res) => {
 
 // --- ADD Project ---
 export const addProject = async (req, res) => {
+    if(!req.user.user_id || !req.body.user_id) {
+        return res.status(401).json({
+            status: false,
+            message: "user_id not found"
+        });
+    }
+    if(req.user.user_id !== req.body.user_id) {
+        return res.status(401).json({
+            status: false,
+            message: "you can't add project to other user's account. this is not allowed"
+        });
+    }
     try {
         const { title, discriotion, project_link, technologies_used } = req.body;
-        let project_snap_url = "";
+        if(!title || !discriotion || !project_link || !technologies_used) {
+            return res.status(400).json({
+                status: false,
+                message: "all fields are required"
+            });
+        }
+        let project_snap_url = ""; 
 
         if (req.file) {
             project_snap_url = await image_uplode_to_cloudnary(req.file.path);
@@ -153,7 +210,7 @@ export const addProject = async (req, res) => {
             project_snap_url
         };
 
-        const updatedUser = await basicmodel.findByIdAndUpdate(FIXED_ID,
+        const updatedUser = await basicmodel.findOneAndUpdate( { user_id: req.user.user_id },
             { $push: { projects: newProject } },
             { new: true }
         );
@@ -170,6 +227,18 @@ export const editProject = async (req, res) => {
     try {
         const { projectId, title, discriotion, project_link, technologies_used } = req.body;
 
+        if(!req.user.user_id || !req.body.user_id) {
+            return res.status(401).json({
+                status: false,
+                message: "user_id not found"
+            });
+        }
+        if(req.user.user_id !== req.body.user_id) {
+            return res.status(401).json({
+                status: false,
+                message: "you can't edit project to other user's account. this is not allowed"
+            });
+        }
         const updateFields = {};
         if (title) updateFields["projects.$.title"] = title;
         if (discriotion) updateFields["projects.$.discriotion"] = discriotion;
@@ -182,7 +251,7 @@ export const editProject = async (req, res) => {
         }
 
         const updatedUser = await basicmodel.findOneAndUpdate(
-            { _id: FIXED_ID, "projects._id": projectId },
+            { user_id: req.user.user_id, "projects._id": projectId },
             { $set: updateFields },
             { new: true }
         );
@@ -198,8 +267,20 @@ export const editProject = async (req, res) => {
 export const deleteProject = async (req, res) => {
     try {
         const { projectId } = req.body;
+        if(!req.user.user_id || !req.body.user_id) {
+            return res.status(401).json({
+                status: false,
+                message: "user_id not found"
+            });
+        }
+        if(req.user.user_id !== req.body.user_id) {
+            return res.status(401).json({
+                status: false,
+                message: "you can't delete project to other user's account. this is not allowed"
+            });
+        }
 
-        const updatedUser = await basicmodel.findByIdAndUpdate(FIXED_ID,
+        const updatedUser = await basicmodel.findOneAndUpdate( { user_id: req.user.user_id },
             { $pull: { projects: { _id: projectId } } },
             { new: true }
         );
@@ -217,14 +298,7 @@ export const deleteProject = async (req, res) => {
 export const getPortfolioData = async (req, res) => {
     try {
         // Find the single document by your FIXED_ID
-        const portfolioData = await basicmodel.findById(FIXED_ID);
-
-        if (!portfolioData) {
-            return res.status(404).json({
-                status: false,
-                message: "Portfolio data not found. Please initialize the database."
-            });
-        }
+        const portfolioData = await basicmodel.findOne({ user_id: req.user.user_id });
 
         return res.status(200).json({
             status: true,

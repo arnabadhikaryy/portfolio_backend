@@ -6,6 +6,11 @@ const basic_details_schema = new mongoose.Schema({
         type: String,
         required: true
     },
+    user_id:{
+        type:String,
+        required:true,
+        unique:true
+    },
     prifile_url: {
         type: String,
         required: true

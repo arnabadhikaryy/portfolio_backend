@@ -1,83 +1,89 @@
 import basicmodel from "../../models/basic_schema.js";
 import image_uplode_to_cloudnary from "../../middlewairs/imageUplogingMiddleware.js";
 
-// this is basic details database id
-const FIXED_ID = process.env.BASIC_DETAILS_DATABASE_ID
-
 async function updateBasicDetails(req, res) {
-    try {
-        // 1. Find the existing document
-        const userDetails = await basicmodel.findById(FIXED_ID);
+   // console.log("updateBasicDetails function called");
+    console.log("req.body decode: ", req.user.user_id);
+    console.log("req.body: ", req.body.user_id);
 
-        if (!userDetails) {
-            return res.status(404).json({
+    const token_user_id = req.user.user_id;
+    const body_user_id = req.body.user_id;
+
+    if (token_user_id !== body_user_id) {
+        return res.status(401).json({
+            status: false,
+            message: "you can't update other user's account. this is not allowed"
+        });
+    }
+
+    try {
+        const { user_id } = req.body;
+    
+
+        if (!user_id) {
+            return res.status(400).json({
                 status: false,
-                message: "Basic details document not found. Please create it first."
+                message: "user_id is required in the request body"
             });
         }
 
-        // 2. Extract text data from req.body
-        const {
-            my_name,
-            profation,
-            linkdin_link,
-            github_link,
-            address,
-            date_of_barth,
-            language,
-            pnone,
-            email,
-            skills // This will come as a JSON string if using FormData
-        } = req.body;
+        // Build update object dynamically
+        let updateFields = {};
 
-        // 3. Update Simple Text Fields (if provided)
-        if (my_name) userDetails.my_name = my_name;
-        if (profation) userDetails.profation = profation;
-        if (linkdin_link) userDetails.linkdin_link = linkdin_link;
-        if (github_link) userDetails.github_link = github_link;
-        if (address) userDetails.address = address;
-        if (date_of_barth) userDetails.date_of_barth = date_of_barth;
-        if (language) userDetails.language = language;
-        if (pnone) userDetails.pnone = pnone;
-        if (email) userDetails.email = email;
+        const fields = [
+            "my_name", "profation", "linkdin_link", "github_link", 
+            "address", "date_of_barth", "language", "pnone", 
+            "email", "about_me", "my_password", "your_ui_name", 
+            "exprience", "project_count"
+        ];
 
-        // 4. Handle SKILLS Update
-        // When using FormData (multipart/form-data), arrays/objects are sent as JSON strings.
-        // We need to parse it back into an array.
-        if (skills) {
+        fields.forEach(field => {
+            if (req.body[field] !== undefined) {
+                updateFields[field] = req.body[field];
+            }
+        });
+
+        // Parse skills if provided
+        if (req.body.skills) {
             try {
-                // If it's already an object/array (JSON body), use it directly.
-                // If it's a string (FormData), parse it.
-                const parsedSkills = typeof skills === 'string' ? JSON.parse(skills) : skills;
+                const parsedSkills = typeof req.body.skills === 'string' 
+                    ? JSON.parse(req.body.skills) 
+                    : req.body.skills;
                 
                 if (Array.isArray(parsedSkills)) {
-                    userDetails.skills = parsedSkills;
+                    updateFields.skills = parsedSkills;
                 }
             } catch (e) {
-                console.error("Error parsing skills:", e);
-                return res.status(400).json({ status: false, message: "Invalid skills format" });
+                return res.status(400).json({ 
+                    status: false, 
+                    message: "Invalid skills format" 
+                });
             }
         }
 
-        // 5. Handle Image Uploads (Using Multer 'fields')
-        // We assume your route uses upload.fields([{ name: 'profile_pic' }, { name: 'professional_pic' }])
-        
+        // Handle Image Uploads
         if (req.files) {
-            // Check for 'profile_pic' field
-            if (req.files.profile_pic) {
-                const profileUrl = await image_uplode_to_cloudnary(req.files.profile_pic[0].path);
-                userDetails.prifile_url = profileUrl;
+            if (req.files.profile_pic?.[0]) {
+                updateFields.prifile_url = await image_uplode_to_cloudnary(req.files.profile_pic[0].path);
             }
-
-            // Check for 'professional_pic' field
-            if (req.files.professional_pic) {
-                const professionalUrl = await image_uplode_to_cloudnary(req.files.professional_pic[0].path);
-                userDetails.profational_profile_pic_url = professionalUrl;
+            if (req.files.professional_pic?.[0]) {
+                updateFields.profational_profile_pic_url = await image_uplode_to_cloudnary(req.files.professional_pic[0].path);
             }
         }
 
-        // 6. Save Updates
-        const updatedData = await userDetails.save();
+        // Perform atomic update without touching user_id field
+        const updatedData = await basicmodel.findOneAndUpdate(
+            { user_id: user_id },
+            { $set: updateFields },
+            { new: true, runValidators: true }
+        );
+
+        if (!updatedData) {
+            return res.status(404).json({
+                status: false,
+                message: "No basic details found for the provided user_id."
+            });
+        }
 
         return res.status(200).json({
             status: true,
@@ -89,8 +95,7 @@ async function updateBasicDetails(req, res) {
         console.error("Update Error:", error);
         return res.status(500).json({
             status: false,
-            message: "Internal Server Error",
-            error: error.message
+            message: error.message || "Internal Server Error"
         });
     }
 }

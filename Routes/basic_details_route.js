@@ -30,7 +30,7 @@ basic_details.post('/add/skill', are_you_authorized, addSkillToBasicDetails);
 
 basic_details.post('/delete/skill', are_you_authorized, deleteSkillFromBasicDetails);
 
-basic_details.get('/get', getAllBasicDetails)
+basic_details.post('/get', getAllBasicDetails)
 
 
 
